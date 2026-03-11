@@ -6,6 +6,10 @@ const template = document.getElementById("result-template");
 const pasteButton = document.getElementById("paste-button");
 const submitButton = document.getElementById("submit-button");
 
+const isGitHubPages = window.location.hostname.endsWith("github.io");
+const isStaticHost = isGitHubPages || window.location.protocol === "file:";
+const localDownloadEndpoint = new URL("./api/download", window.location.href).toString();
+const localProxyEndpoint = new URL("./api/proxy", window.location.href).toString();
 let backendMode = "unknown";
 
 function formatNumber(value) {
@@ -111,7 +115,7 @@ async function handleDownload(button, target, name, ext, label, notify) {
 
   try {
     const fetchTarget = backendMode === "local"
-      ? `/api/proxy?${new URLSearchParams({ target, name, ext }).toString()}`
+      ? `${localProxyEndpoint}?${new URLSearchParams({ target, name, ext }).toString()}`
       : target;
 
     const response = await fetch(fetchTarget);
@@ -126,8 +130,8 @@ async function handleDownload(button, target, name, ext, label, notify) {
   } catch (error) {
     if (backendMode !== "local") {
       window.open(target, "_blank", "noopener,noreferrer");
-      setStatus("Direct download was blocked by the browser or remote server, so the media was opened in a new tab. For guaranteed downloads, run the local backend.", "error");
-      notify("Action required", "Direct mode fell back to the browser because the file host blocked in-app saving.");
+      setStatus("GitHub Pages can only use direct mode, so if the remote host blocks browser downloads the media will open in a new tab instead.", "error");
+      notify("Action required", "The file host blocked direct browser saving, so the media opened separately.");
     } else {
       setStatus(error.message || "Download failed.", "error");
       notify("Download failed", error.message || "Please try again.");
@@ -295,7 +299,7 @@ function renderResult(data) {
   resultContent.replaceChildren(fragment);
 
   dynamicIsland.classList.add("active");
-  notify("TikTok loaded", "Face ID complete. Swipe up to enter the app.");
+  notify("TikTok loaded", isGitHubPages ? "GitHub Pages mode is active. Swipe up to enter the app." : "Face ID complete. Swipe up to enter the app.");
 
   setTimeout(() => {
     faceIdCopy.textContent = "Swipe up to open";
@@ -313,7 +317,7 @@ async function parseJsonResponse(response) {
 }
 
 async function fetchLocalDownload(url) {
-  const response = await fetch(`/api/download?url=${encodeURIComponent(url)}`);
+  const response = await fetch(`${localDownloadEndpoint}?url=${encodeURIComponent(url)}`);
   const data = await parseJsonResponse(response);
 
   if (!response.ok) {
@@ -338,6 +342,12 @@ async function fetchDirectDownload(url) {
 }
 
 async function fetchDownload(url) {
+  if (isStaticHost) {
+    const directResult = await fetchDirectDownload(url);
+    setStatus("GitHub Pages mode detected. The app is using direct mode automatically.", "success");
+    return directResult;
+  }
+
   try {
     return await fetchLocalDownload(url);
   } catch {
@@ -374,7 +384,7 @@ form.addEventListener("submit", async (event) => {
 
   submitButton.disabled = true;
   submitButton.textContent = "Loading...";
-  setStatus("Injecting your TikTok into the iPhone app shell...");
+  setStatus(isGitHubPages ? "GitHub Pages detected. Loading the phone app in static mode..." : "Injecting your TikTok into the iPhone app shell...");
 
   try {
     const data = await fetchDownload(url);
@@ -382,7 +392,9 @@ form.addEventListener("submit", async (event) => {
     if (backendMode === "local") {
       setStatus("The phone app is ready. Unlock it and swipe between Preview and Downloads.", "success");
     } else {
-      setStatus("The phone app is ready in direct mode. Unlock it and try the save actions inside the app.", "success");
+      setStatus(isGitHubPages
+        ? "The phone app is ready on GitHub Pages. Unlock it and use the in-app save buttons."
+        : "The phone app is ready in direct mode. Unlock it and try the save actions inside the app.", "success");
     }
   } catch (error) {
     setStatus(error.message, "error");
