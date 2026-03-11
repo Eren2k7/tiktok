@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERΣΠ︵²ᵏ⁷ | TikTok Downloader</title>
+    <meta
+      name="description"
+      content="Download TikTok videos and photo posts in a bold, cinematic interface."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="aurora aurora-one"></div>
+      <div class="aurora aurora-two"></div>
+
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-text">ERΣΠ︵²ᵏ⁷</span>
+        </div>
+        <a class="ghost-link" href="#how-it-works">How it works</a>
+      </header>
+
+      <main class="hero-grid">
+        <section class="hero-copy">
+          <p class="eyebrow">TikTok Downloader App</p>
+          <h1>Turn the downloader into a hyper-real iPhone experience.</h1>
+          <p class="lede">
+            This version behaves like a phone app: Face ID lock animation, live notifications, blur-heavy iOS styling, a pulsing Dynamic Island, and swipe gestures for moving between the preview and download panels.
+          </p>
+
+          <form id="download-form" class="download-panel">
+            <label class="sr-only" for="tiktok-url">TikTok URL</label>
+            <input
+              id="tiktok-url"
+              name="url"
+              type="url"
+              placeholder="https://www.tiktok.com/@creator/video/..."
+              autocomplete="off"
+              required
+            />
+            <div class="action-row">
+              <button type="button" id="paste-button" class="secondary-button">Paste</button>
+              <button type="submit" id="submit-button" class="primary-button">Load Into Phone</button>
+            </div>
+            <p id="status" class="status" aria-live="polite"></p>
+          </form>
+
+          <div class="mini-stats">
+            <article>
+              <strong>Face ID unlock</strong>
+              <span>Animated scan and swipe-up unlock interaction</span>
+            </article>
+            <article>
+              <strong>iOS motion</strong>
+              <span>Notifications, blur layers, floating device, and island activity</span>
+            </article>
+            <article>
+              <strong>Swipe navigation</strong>
+              <span>Move between Preview and Downloads like app pages</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="showcase-card" id="result-card">
+          <div class="showcase-overlay"></div>
+          <div class="showcase-content" id="result-content">
+            <p class="placeholder-kicker">Ready when you are</p>
+            <h2>Your iPhone app preview lands here.</h2>
+            <p class="placeholder-text">
+              Load a TikTok and the card becomes a realistic phone interface with lock screen, notifications, and app pages you can swipe through.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <section class="info-strip" id="how-it-works">
+        <article>
+          <span>01</span>
+          <h3>Load a TikTok</h3>
+          <p>Paste a public TikTok URL and inject it into the phone UI.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Unlock the phone</h3>
+          <p>Watch the Face ID animation, then swipe up to enter the app view.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Swipe and save</h3>
+          <p>Swipe between preview and download pages and save media from inside the app shell.</p>
+        </article>
+      </section>
+    </div>
+
+    <template id="result-template">
+      <div class="phone-shell app-shell" data-page="0" data-unlocked="false">
+        <div class="phone-shine"></div>
+        <div class="phone-topbar">
+          <span class="phone-time" id="phone-time">9:41</span>
+          <div class="dynamic-island active" id="dynamic-island">
+            <div class="island-track">
+              <span class="island-dot"></span>
+              <span class="island-label">Downloader Ready</span>
+            </div>
+            <div class="music-bars" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <span class="signal-pack">5G</span>
+        </div>
+
+        <div class="phone-screen" id="phone-screen">
+          <div class="wallpaper-layer"></div>
+          <div class="notification-stack" id="notification-stack"></div>
+
+          <div class="lock-overlay locked" id="lock-overlay">
+            <div class="lock-time-wrap">
+              <p class="lock-day" id="lock-day"></p>
+              <h3 class="lock-time-value" id="lock-time">9:41</h3>
+            </div>
+            <div class="face-id-panel" id="face-id-panel">
+              <div class="face-id-core">
+                <div class="face-id-ring"></div>
+                <div class="face-id-ring delay"></div>
+                <div class="face-id-grid"></div>
+              </div>
+              <p class="face-id-title">Face ID</p>
+              <p class="face-id-copy" id="face-id-copy">Authenticating...</p>
+            </div>
+            <div class="swipe-up-hint">
+              <span></span>
+              <p>Swipe up to open</p>
+            </div>
+          </div>
+
+          <div class="app-pages" id="app-pages">
+            <section class="app-page app-page-preview is-active">
+              <div class="page-header glass-card">
+                <div>
+                  <p class="page-kicker">Now Playing</p>
+                  <h3 id="post-title"></h3>
+                </div>
+                <button type="button" class="chip-button" id="unlock-button">Unlock</button>
+              </div>
+
+              <div class="media-stage app-media-stage">
+                <div class="media-frame" id="media-frame"></div>
+              </div>
+
+              <div class="info-card glass-card">
+                <div class="author-row">
+                  <img id="author-avatar" alt="" />
+                  <div>
+                    <p id="author-name"></p>
+                    <p id="author-handle"></p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="app-page app-page-downloads">
+              <div class="page-header glass-card compact">
+                <div>
+                  <p class="page-kicker">Downloads</p>
+                  <h3>Save this post</h3>
+                </div>
+              </div>
+
+              <div class="stat-grid" id="stat-grid">
+                <article>
+                  <span>Views</span>
+                  <strong id="views-count"></strong>
+                </article>
+                <article>
+                  <span>Likes</span>
+                  <strong id="likes-count"></strong>
+                </article>
+                <article>
+                  <span>Comments</span>
+                  <strong id="comments-count"></strong>
+                </article>
+                <article>
+                  <span>Shares</span>
+                  <strong id="shares-count"></strong>
+                </article>
+              </div>
+
+              <div class="download-group" id="download-group"></div>
+            </section>
+          </div>
+
+          <div class="page-dots">
+            <span class="page-dot active"></span>
+            <span class="page-dot"></span>
+          </div>
+          <div class="home-indicator"></div>
+        </div>
+      </div>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

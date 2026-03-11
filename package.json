@@ -1,0 +1,13 @@
+﻿{
+  "name": "tokyo-drop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A polished TikTok downloader website with a serverless backend.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev"
+  }
+}
