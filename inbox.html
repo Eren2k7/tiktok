@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contact Me</title>
+
+<style>
+
+body{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:#0f172a;
+font-family:Arial;
+}
+
+.whatsapp-btn{
+background:#25D366;
+color:white;
+padding:16px 28px;
+border-radius:40px;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+border:none;
+transition:0.3s;
+animation:pulse 1.8s infinite;
+}
+
+.whatsapp-btn:hover{
+transform:scale(1.08);
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+@keyframes pulse{
+0%{box-shadow:0 0 0 0 rgba(37,211,102,0.6);}
+70%{box-shadow:0 0 0 20px rgba(37,211,102,0);}
+100%{box-shadow:0 0 0 0 rgba(37,211,102,0);}
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="whatsapp-btn" onclick="sendMessage()">
+💬 Send Me a Message
+</button>
+
+<script>
+
+function sendMessage(){
+
+let name = prompt("Enter your name");
+
+if(name){
+
+let message = `My name is ${name}. I have something to say`;
+
+let phone = "2348143929492";
+
+let url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+window.open(url,"_blank");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

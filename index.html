@@ -3,45 +3,105 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ERΣΠ︵²ᵏ⁷ | TikTok Downloader</title>
+    <title>ERΣΠ︵²ᵏ⁷ Tiktok downloader</title>
     <meta
       name="description"
-      content="Download TikTok videos and photo posts in a bold, cinematic interface."
+      content="Download TikTok videos, image posts, and audio in a dramatic iPhone-inspired interface."
     />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./pic 1.png" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="page-shell">
+      <div class="pixel-stage" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
       <div class="aurora aurora-one"></div>
       <div class="aurora aurora-two"></div>
 
       <header class="topbar">
         <div class="brand">
           <span class="brand-mark"></span>
-          <span class="brand-text">ERΣΠ︵²ᵏ⁷</span>
+          <span class="brand-text">ERΣΠ︵²ᵏ⁷ Tiktok downloader</span>
         </div>
-        <a class="ghost-link" href="#how-it-works">How it works</a>
+        <a class="ghost-link" href="#coming-soon">Latest Update</a>
       </header>
 
       <main class="hero-grid">
         <section class="hero-copy">
-          <p class="eyebrow">TikTok Downloader App</p>
-          <h1>Turn the downloader into a hyper-real iPhone experience.</h1>
-          <p class="lede">
-            This version behaves like a phone app: Face ID lock animation, live notifications, blur-heavy iOS styling, a pulsing Dynamic Island, and swipe gestures for moving between the preview and download panels.
-          </p>
+          <p class="eyebrow">Download any video from Tiktok Right here</p>
+          <h1>ERΣΠ︵²ᵏ⁷
+            Reliable And Fast. If Any Error Is Noticed And Any Idea kindly Inbox me</h1>
 
+          <p class="lede">
+          
+          <style>
+          .whatsapp-btn{
+          background:#25D366;
+          color:white;
+          padding:14px 24px;
+          border-radius:40px;
+          font-size:16px;
+          font-weight:bold;
+          cursor:pointer;
+          border:none;
+          transition:0.3s;
+          animation:pulse 1.8s infinite;
+          }
+          
+          .whatsapp-btn:hover{
+          transform:scale(1.08);
+          box-shadow:0 10px 25px rgba(0,0,0,0.3);
+          }
+          
+          @keyframes pulse{
+          0%{box-shadow:0 0 0 0 rgba(37,211,102,0.6);}
+          70%{box-shadow:0 0 0 15px rgba(37,211,102,0);}
+          100%{box-shadow:0 0 0 0 rgba(37,211,102,0);}
+          }
+          </style>
+          
+          <button class="whatsapp-btn" onclick="sendMessage()">
+          💬 Send Me a Message
+          </button>
+          
+          <script>
+          function sendMessage(){
+          
+          let name = prompt("Enter your name");
+          
+          if(name){
+          
+          let message = `My name is ${name}. I have something to say`;
+          
+          let phone = "2348143929492";
+          
+          let url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+          
+          window.open(url,"_blank");
+          
+          }
+          
+          }
+          </script>
+          
+          </p>
+          
           <form id="download-form" class="download-panel">
             <label class="sr-only" for="tiktok-url">TikTok URL</label>
-            <input
-              id="tiktok-url"
-              name="url"
-              type="url"
-              placeholder="https://www.tiktok.com/@creator/video/..."
-              autocomplete="off"
-              required
-            />
+            <div class="input-shell">
+              <input
+                id="tiktok-url"
+                name="url"
+                type="url"
+                placeholder="https://www.tiktok.com/@creator/video/..."
+                autocomplete="off"
+                required
+              />
+              <button type="button" id="clear-button" class="clear-button" aria-label="Clear link">X</button>
+            </div>
             <div class="action-row">
               <button type="button" id="paste-button" class="secondary-button">Paste</button>
               <button type="submit" id="submit-button" class="primary-button">Load Into Phone</button>
@@ -51,16 +111,16 @@
 
           <div class="mini-stats">
             <article>
-              <strong>Face ID unlock</strong>
-              <span>Animated scan and swipe-up unlock interaction</span>
+              <strong>Any video ratio</strong>
+              <span>Contained safely inside the phone page without overflow</span>
             </article>
             <article>
-              <strong>iOS motion</strong>
-              <span>Notifications, blur layers, floating device, and island activity</span>
+              <strong>Image + audio pack</strong>
+              <span>Mixed image posts can trigger sequential image and music downloads</span>
             </article>
             <article>
-              <strong>GitHub-ready</strong>
-              <span>Static hosting friendly with repo-safe asset paths</span>
+              <strong>GitHub ready</strong>
+              <span>Relative asset paths and static-mode behavior by default</span>
             </article>
           </div>
         </section>
@@ -71,27 +131,40 @@
             <p class="placeholder-kicker">Ready when you are</p>
             <h2>Your iPhone app preview lands here.</h2>
             <p class="placeholder-text">
-              Load a TikTok and the card becomes a realistic phone interface with lock screen, notifications, and app pages you can swipe through.
+              Load a TikTok and the card becomes a phone UI with a lock screen, notifications, swipeable panels, and a download area that no longer gets breached by video size.
             </p>
           </div>
         </section>
       </main>
 
-      <section class="info-strip" id="how-it-works">
-        <article>
-          <span>01</span>
-          <h3>Load a TikTok</h3>
-          <p>Paste a public TikTok URL and inject it into the phone UI.</p>
+      <section class="social-strip" id="coming-soon">
+        <article class="social-card">
+          <div class="social-logo instagram"></div>
+          <div>
+            <h3>Instagram</h3>
+            <p>Coming soon</p>
+          </div>
         </article>
-        <article>
-          <span>02</span>
-          <h3>Unlock the phone</h3>
-          <p>Watch the Face ID animation, then swipe up to enter the app view.</p>
+        <article class="social-card">
+          <div class="social-logo xlogo"></div>
+          <div>
+            <h3>X</h3>
+            <p>Coming soon</p>
+          </div>
         </article>
-        <article>
-          <span>03</span>
-          <h3>Swipe and save</h3>
-          <p>Swipe between preview and download pages and save media from inside the app shell.</p>
+        <article class="social-card">
+          <div class="social-logo facebook"></div>
+          <div>
+            <h3>Facebook</h3>
+            <p>Coming soon</p>
+          </div>
+        </article>
+        <article class="social-card">
+          <div class="social-logo snapchat"></div>
+          <div>
+            <h3>Snapchat</h3>
+            <p>Coming soon</p>
+          </div>
         </article>
       </section>
     </div>
@@ -104,7 +177,7 @@
           <div class="dynamic-island active" id="dynamic-island">
             <div class="island-track">
               <span class="island-dot"></span>
-              <span class="island-label">Downloader Ready</span>
+              <span class="island-label" id="island-label">Downloader Ready</span>
             </div>
             <div class="music-bars" aria-hidden="true">
               <span></span>
@@ -125,7 +198,7 @@
               <p class="lock-day" id="lock-day"></p>
               <h3 class="lock-time-value" id="lock-time">9:41</h3>
             </div>
-            <div class="face-id-panel" id="face-id-panel">
+            <div class="face-id-panel">
               <div class="face-id-core">
                 <div class="face-id-ring"></div>
                 <div class="face-id-ring delay"></div>
@@ -141,7 +214,7 @@
           </div>
 
           <div class="app-pages" id="app-pages">
-            <section class="app-page app-page-preview is-active">
+            <section class="app-page app-page-preview">
               <div class="page-header glass-card">
                 <div>
                   <p class="page-kicker">Now Playing</p>
@@ -173,7 +246,7 @@
                 </div>
               </div>
 
-              <div class="stat-grid" id="stat-grid">
+              <div class="stat-grid">
                 <article>
                   <span>Views</span>
                   <strong id="views-count"></strong>

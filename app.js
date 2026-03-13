@@ -5,6 +5,7 @@ const resultContent = document.getElementById("result-content");
 const template = document.getElementById("result-template");
 const pasteButton = document.getElementById("paste-button");
 const submitButton = document.getElementById("submit-button");
+const clearButton = document.getElementById("clear-button");
 
 const isGitHubPages = window.location.hostname.endsWith("github.io");
 const isStaticHost = isGitHubPages || window.location.protocol === "file:";
@@ -22,32 +23,22 @@ function setStatus(message, tone = "muted") {
 }
 
 function formatPhoneClock(date = new Date()) {
-  return new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(date);
+  return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(date);
 }
 
 function formatLockDay(date = new Date()) {
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric"
-  }).format(date);
+  return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(date);
 }
 
 function sanitizePayload(rawUrl, data) {
   const isGallery = Array.isArray(data.images) && data.images.length > 0;
-
   return {
     sourceUrl: rawUrl,
     type: isGallery ? "gallery" : "video",
     title: data.title || "Untitled TikTok",
     cover: data.cover || data.origin_cover || null,
     duration: data.duration ?? null,
-    durationLabel: Number.isFinite(Number(data.duration))
-      ? `${Math.floor(Number(data.duration) / 60)}:${String(Number(data.duration) % 60).padStart(2, "0")}`
-      : null,
+    durationLabel: Number.isFinite(Number(data.duration)) ? `${Math.floor(Number(data.duration) / 60)}:${String(Number(data.duration) % 60).padStart(2, "0")}` : null,
     author: {
       nickname: data.author?.nickname || "Unknown creator",
       username: data.author?.unique_id || null,
@@ -79,22 +70,11 @@ function showNotification(stack, title, body) {
       <p class="notification-body">${body}</p>
     </div>
   `;
-
   stack.prepend(notification);
-
   setTimeout(() => {
     notification.classList.add("fade-out");
     setTimeout(() => notification.remove(), 320);
   }, 2800);
-}
-
-function createDownloadButton(label, target, name, ext, variant, notify) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = `download-button${variant === "primary" ? " primary" : ""}`;
-  button.textContent = label;
-  button.addEventListener("click", () => handleDownload(button, target, name, ext, label, notify));
-  return button;
 }
 
 function triggerBrowserDownload(blob, filename) {
@@ -108,54 +88,92 @@ function triggerBrowserDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
 }
 
-async function handleDownload(button, target, name, ext, label, notify) {
-  const originalLabel = button.textContent;
-  button.disabled = true;
-  button.textContent = "Saving...";
-
-  try {
-    const fetchTarget = backendMode === "local"
-      ? `${localProxyEndpoint}?${new URLSearchParams({ target, name, ext }).toString()}`
-      : target;
-
-    const response = await fetch(fetchTarget);
-    if (!response.ok) {
-      throw new Error(`Download failed with status ${response.status}.`);
-    }
-
-    const blob = await response.blob();
-    triggerBrowserDownload(blob, `${name}.${ext}`);
-    setStatus(`${label} downloaded successfully.`, "success");
-    notify("Saved to Files", `${label} is ready on your device.`);
-  } catch (error) {
-    if (backendMode !== "local") {
-      window.open(target, "_blank", "noopener,noreferrer");
-      setStatus("GitHub Pages can only use direct mode, so if the remote host blocks browser downloads the media will open in a new tab instead.", "error");
-      notify("Action required", "The file host blocked direct browser saving, so the media opened separately.");
-    } else {
-      setStatus(error.message || "Download failed.", "error");
-      notify("Download failed", error.message || "Please try again.");
-    }
-  } finally {
-    button.disabled = false;
-    button.textContent = originalLabel;
+async function fetchBlobForSave(target, name, ext) {
+  const fetchTarget = backendMode === "local"
+    ? `${localProxyEndpoint}?${new URLSearchParams({ target, name, ext }).toString()}`
+    : target;
+  const response = await fetch(fetchTarget);
+  if (!response.ok) {
+    throw new Error(`Download failed with status ${response.status}.`);
   }
+  const blob = await response.blob();
+  triggerBrowserDownload(blob, `${name}.${ext}`);
+}
+
+function createDownloadButton(label, target, name, ext, variant, notify, islandLabel) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `download-button${variant === "primary" ? " primary" : ""}`;
+  button.textContent = label;
+  button.addEventListener("click", async () => {
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = "Saving...";
+    islandLabel.textContent = "Saving media";
+    try {
+      await fetchBlobForSave(target, name, ext);
+      setStatus(`${label} downloaded successfully.`, "success");
+      notify("Saved to Files", `${label} is ready on your device.`);
+    } catch (error) {
+      if (backendMode !== "local") {
+        window.open(target, "_blank", "noopener,noreferrer");
+        setStatus("GitHub Pages uses direct mode. If the file host blocks browser downloads, the media opens in a new tab instead.", "error");
+        notify("Action required", "The file host blocked direct browser saving, so the media opened separately.");
+      } else {
+        setStatus(error.message || "Download failed.", "error");
+        notify("Download failed", error.message || "Please try again.");
+      }
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
+      islandLabel.textContent = "Downloader Ready";
+    }
+  });
+  return button;
+}
+
+function createPackButton(data, baseName, notify, islandLabel) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "download-button primary";
+  button.textContent = "Save Post Pack";
+  button.addEventListener("click", async () => {
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = "Saving pack...";
+    islandLabel.textContent = "Saving pack";
+    try {
+      for (let index = 0; index < data.downloads.images.length; index += 1) {
+        await fetchBlobForSave(data.downloads.images[index], `${baseName}-${index + 1}`, "jpg");
+      }
+      if (data.downloads.audio) {
+        await fetchBlobForSave(data.downloads.audio, `${baseName}-audio`, "mp3");
+      }
+      setStatus("Image post and audio pack downloaded.", "success");
+      notify("Saved to Files", "Images and audio were downloaded together.");
+    } catch (error) {
+      setStatus(error.message || "Pack download failed.", "error");
+      notify("Pack failed", error.message || "Please try the individual buttons.");
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
+      islandLabel.textContent = "Downloader Ready";
+    }
+  });
+  return button;
 }
 
 function renderMedia(data, frame) {
   frame.innerHTML = "";
-
   if (data.type === "gallery" && data.downloads.images.length) {
     const grid = document.createElement("div");
     grid.className = "gallery-grid";
-
     data.downloads.images.slice(0, 4).forEach((imageUrl) => {
       const image = document.createElement("img");
       image.src = imageUrl;
       image.alt = data.title;
       grid.appendChild(image);
     });
-
     frame.appendChild(grid);
     return;
   }
@@ -181,15 +199,12 @@ function renderMedia(data, frame) {
 
 function setPageState(appPages, pageDots, pageIndex) {
   appPages.classList.toggle("page-1", pageIndex === 1);
-  pageDots.forEach((dot, index) => {
-    dot.classList.toggle("active", index === pageIndex);
-  });
+  pageDots.forEach((dot, index) => dot.classList.toggle("active", index === pageIndex));
 }
 
 function installSwipeGestures(phoneScreen, lockOverlay, unlock, appPages, pageDots) {
   let startX = 0;
   let startY = 0;
-
   phoneScreen.addEventListener("touchstart", (event) => {
     startX = event.touches[0].clientX;
     startY = event.touches[0].clientY;
@@ -198,17 +213,14 @@ function installSwipeGestures(phoneScreen, lockOverlay, unlock, appPages, pageDo
   phoneScreen.addEventListener("touchend", (event) => {
     const dx = event.changedTouches[0].clientX - startX;
     const dy = event.changedTouches[0].clientY - startY;
-
     if (!lockOverlay.classList.contains("unlocked")) {
       if (dy < -70) {
         unlock();
       }
       return;
     }
-
     if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy)) {
-      const nextPage = dx < 0 ? 1 : 0;
-      setPageState(appPages, pageDots, nextPage);
+      setPageState(appPages, pageDots, dx < 0 ? 1 : 0);
     }
   }, { passive: true });
 }
@@ -235,6 +247,7 @@ function renderResult(data) {
   const phoneScreen = fragment.getElementById("phone-screen");
   const unlockButton = fragment.getElementById("unlock-button");
   const dynamicIsland = fragment.getElementById("dynamic-island");
+  const islandLabel = fragment.getElementById("island-label");
   const pageDots = Array.from(fragment.querySelectorAll(".page-dot"));
 
   const syncClock = () => {
@@ -247,7 +260,6 @@ function renderResult(data) {
 
   syncClock();
   setTimeout(syncClock, 1000);
-
   renderMedia(data, frame);
 
   authorAvatar.src = data.author.avatar || data.cover || "";
@@ -263,25 +275,24 @@ function renderResult(data) {
   const baseName = `${data.author.username || "tiktok"}-${Date.now()}`;
   const notify = (title, body) => showNotification(notificationStack, title, body);
 
+  if (data.type === "gallery" && data.downloads.images.length && data.downloads.audio) {
+    downloadGroup.appendChild(createPackButton(data, baseName, notify, islandLabel));
+  }
   if (data.downloads.hdVideo) {
-    downloadGroup.appendChild(createDownloadButton("Save HD Video", data.downloads.hdVideo, baseName, "mp4", "primary", notify));
+    downloadGroup.appendChild(createDownloadButton("Save HD Video", data.downloads.hdVideo, baseName, "mp4", "primary", notify, islandLabel));
   }
-
   if (data.downloads.video) {
-    downloadGroup.appendChild(createDownloadButton("Save Video", data.downloads.video, baseName, "mp4", "default", notify));
+    downloadGroup.appendChild(createDownloadButton("Save Video", data.downloads.video, baseName, "mp4", "default", notify, islandLabel));
   }
-
   if (data.downloads.watermarkedVideo) {
-    downloadGroup.appendChild(createDownloadButton("Save WM Video", data.downloads.watermarkedVideo, `${baseName}-wm`, "mp4", "default", notify));
+    downloadGroup.appendChild(createDownloadButton("Save WM Video", data.downloads.watermarkedVideo, `${baseName}-wm`, "mp4", "default", notify, islandLabel));
   }
-
   if (data.downloads.audio) {
-    downloadGroup.appendChild(createDownloadButton("Save Audio", data.downloads.audio, `${baseName}-audio`, "mp3", "default", notify));
+    downloadGroup.appendChild(createDownloadButton("Save Audio", data.downloads.audio, `${baseName}-audio`, "mp3", "default", notify, islandLabel));
   }
-
   if (data.type === "gallery") {
     data.downloads.images.forEach((imageUrl, index) => {
-      downloadGroup.appendChild(createDownloadButton(`Save Photo ${index + 1}`, imageUrl, `${baseName}-${index + 1}`, "jpg", "default", notify));
+      downloadGroup.appendChild(createDownloadButton(`Save Photo ${index + 1}`, imageUrl, `${baseName}-${index + 1}`, "jpg", "default", notify, islandLabel));
     });
   }
 
@@ -297,13 +308,8 @@ function renderResult(data) {
   installSwipeGestures(phoneScreen, lockOverlay, unlock, appPages, pageDots);
 
   resultContent.replaceChildren(fragment);
-
-  dynamicIsland.classList.add("active");
   notify("TikTok loaded", isGitHubPages ? "GitHub Pages mode is active. Swipe up to enter the app." : "Face ID complete. Swipe up to enter the app.");
-
-  setTimeout(() => {
-    faceIdCopy.textContent = "Swipe up to open";
-  }, 1400);
+  setTimeout(() => { faceIdCopy.textContent = "Swipe up to open"; }, 1400);
 }
 
 async function parseJsonResponse(response) {
@@ -311,7 +317,6 @@ async function parseJsonResponse(response) {
   if (contentType.includes("application/json")) {
     return response.json();
   }
-
   const text = await response.text();
   throw new Error(text || `Request failed with status ${response.status}.`);
 }
@@ -319,11 +324,9 @@ async function parseJsonResponse(response) {
 async function fetchLocalDownload(url) {
   const response = await fetch(`${localDownloadEndpoint}?url=${encodeURIComponent(url)}`);
   const data = await parseJsonResponse(response);
-
   if (!response.ok) {
     throw new Error(data.error || "Local API request failed.");
   }
-
   backendMode = "local";
   return data;
 }
@@ -332,11 +335,9 @@ async function fetchDirectDownload(url) {
   const response = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
   const payload = await parseJsonResponse(response);
   const data = payload?.data;
-
   if (!response.ok || !data) {
     throw new Error(payload?.error || "Direct TikTok lookup failed.");
   }
-
   backendMode = "direct";
   return sanitizePayload(url, data);
 }
@@ -347,17 +348,12 @@ async function fetchDownload(url) {
     setStatus("GitHub Pages mode detected. The app is using direct mode automatically.", "success");
     return directResult;
   }
-
   try {
     return await fetchLocalDownload(url);
   } catch {
-    try {
-      const directResult = await fetchDirectDownload(url);
-      setStatus("Local API was missing, so the phone switched to direct mode.", "success");
-      return directResult;
-    } catch {
-      throw new Error("The local API is unavailable and direct mode also failed. If you are on a restricted network, deploy the Vercel backend or enable internet access.");
-    }
+    const directResult = await fetchDirectDownload(url);
+    setStatus("Local API was missing, so the phone switched to direct mode.", "success");
+    return directResult;
   }
 }
 
@@ -373,9 +369,14 @@ pasteButton.addEventListener("click", async () => {
   }
 });
 
+clearButton.addEventListener("click", () => {
+  input.value = "";
+  input.focus();
+  setStatus("Link cleared.");
+});
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-
   const url = input.value.trim();
   if (!url) {
     setStatus("Paste a TikTok link first.", "error");
@@ -389,13 +390,7 @@ form.addEventListener("submit", async (event) => {
   try {
     const data = await fetchDownload(url);
     renderResult(data);
-    if (backendMode === "local") {
-      setStatus("The phone app is ready. Unlock it and swipe between Preview and Downloads.", "success");
-    } else {
-      setStatus(isGitHubPages
-        ? "The phone app is ready on GitHub Pages. Unlock it and use the in-app save buttons."
-        : "The phone app is ready in direct mode. Unlock it and try the save actions inside the app.", "success");
-    }
+    setStatus(isGitHubPages ? "The phone app is ready on GitHub Pages. Unlock it and use the in-app save buttons." : "The phone app is ready. Unlock it and swipe between Preview and Downloads.", "success");
   } catch (error) {
     setStatus(error.message, "error");
   } finally {
